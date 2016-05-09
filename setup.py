@@ -12,15 +12,25 @@ requires=[
     'nose'
 ]
 
-setup(name='neuropower',
-    version='0.1',
+setup(
+    # Application name:
+    name='neuropower',
+
+    # Version number:
+    version='0.1.3',
+
+    # Author details
+    author='Joke Durnez',
+    author_email = 'joke.durnez@gmail.com',
+
+    # Packages
+    packages=['neuropower'],
+
+    #Details
     description='A package to perform power analyses for neuroimaging data',
     long_description=readme(),
     url='http://github.com/neuropower/neuropower-core',
-    author='Joke Durnez',
-    author_email = 'joke.durnez@gmail.com',
     license='MIT',
-    packages=['neuropower'],
     keywords='statistics power fmri neuroimaging inference samplesize',
     classifiers=[
         'Development Status :: 4 - Beta',
