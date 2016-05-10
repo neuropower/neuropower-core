@@ -17,7 +17,7 @@ setup(
     name='neuropower',
 
     # Version number:
-    version='0.2.0',
+    version='0.2.1',
 
     # Author details
     author='Joke Durnez',

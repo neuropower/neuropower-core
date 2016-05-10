@@ -120,7 +120,7 @@ def modelfit(peaks,pi1,exc=None,starts=1,seed=None,method="RFT"):
 			'sigma': par[minind][1] if method == "RFT" else 'nan'}
 	return out
 
-def threshold(peaks,pvalues,FWHM,nvox,alpha=0.05,exc=None,method="RFT"):
+def threshold(peaks,pvalues,FWHM,voxsize,nvox,alpha=0.05,exc=None,method="RFT"):
 	# only RFT
 	peakrange = np.arange(exc,15,0.001)
 	pN = 1-nulCDF(np.array(peakrange),exc=exc)
