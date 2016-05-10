@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 def readme():
     with open('README.rst') as f:
@@ -17,14 +17,14 @@ setup(
     name='neuropower',
 
     # Version number:
-    version='0.1.3',
+    version='0.2.0',
 
     # Author details
     author='Joke Durnez',
     author_email = 'joke.durnez@gmail.com',
 
     # Packages
-    packages=['neuropower'],
+    packages=find_packages(),
 
     #Details
     description='A package to perform power analyses for neuroimaging data',
