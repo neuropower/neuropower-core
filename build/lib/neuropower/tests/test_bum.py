@@ -1,5 +1,5 @@
 from unittest import TestCase
-import neuropower
+from neuropower import BUM
 import numpy as np
 
 class TestBUM(TestCase):

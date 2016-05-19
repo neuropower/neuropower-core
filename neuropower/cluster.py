@@ -10,7 +10,7 @@ Extract local maxima from a spm, return a csv file with variables:
 - peak height
 """
 
-def cluster(spm,exc,mask):
+def PeakTable(spm,exc,mask):
 	# make a new array with an extra row/column/plane around the original array
 	spm_newdim = tuple(map(lambda x: x+2,spm.shape))
 	spm_ext = np.zeros((spm_newdim))

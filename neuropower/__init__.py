@@ -1,4 +1,1 @@
-import neuropowermodels
-import peakdistribution
-import BUM
-import cluster
+__all__ = ['BUM','cluster','neuropowermodels','peakdistribution']

@@ -24,7 +24,7 @@ def fbumnLL(pars,x):
 	negsumlog = -sum(np.log(L))
 	return(negsumlog)
 
-def bumOptim(x,starts=10,seed=None):
+def EstimatePi1(x,starts=10,seed=None):
 	# Returns the MLE estimator for pi1, with the shaping parameters and the value of the negative sum of the loglikelihood
 	"""Searches the maximum likelihood estimator for the shape parameters of the BUM-model given a list of p-values"""
 	seed = np.random.uniform(0,1000,1) if not 'seed' in locals() else seed
