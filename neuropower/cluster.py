@@ -1,14 +1,11 @@
-import nibabel as nib
 import numpy as np
 import pandas as pd
 
-"""
-Extract local maxima from a spm, return a csv file with variables:
+""" Extract local maxima from a spm, return a csv file with variables:
 - x coordinate
 - y coordinate
 - z coordinate
-- peak height
-"""
+- peak height """
 
 def PeakTable(spm,exc,mask):
 	# make a new array with an extra row/column/plane around the original array
@@ -30,8 +27,6 @@ def PeakTable(spm,exc,mask):
 			for o in xrange(1,shape[2]+1):
 				surroundings = None
 				res = None
-				val = None
-				maxval = None
 				if spm_ext[m,n,o]>exc:
 					surroundings=[spm_ext[m-1,n-1,o-1],
 					spm_ext[m-1,n-1,o],

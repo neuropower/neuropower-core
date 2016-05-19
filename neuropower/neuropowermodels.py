@@ -3,11 +3,9 @@ import numpy as np
 from neuropower import peakdistribution
 import scipy.integrate as integrate
 
-"""
-Fit a mixture model to a list of peak height T-values.
+""" Fit a mixture model to a list of peak height T-values.
 The model is introduced in the HBM poster:
-http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/nichols/presentations/ohbm2015/Durnez-PeakPower-OHBM2015.pdf
-"""
+http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/nichols/presentations/ohbm2015/Durnez-PeakPower-OHBM2015.pdf """
 
 def altPDF(peaks,mu,sigma=None,exc=None,method="RFT"):
 	"""
