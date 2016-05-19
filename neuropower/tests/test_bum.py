@@ -15,7 +15,7 @@ class TestBUM(TestCase):
         x = BUM.fbumnLL([0.5,0.5],testpeaks)
         self.assertEqual(np.around(x,decimals=2)[0],-4.42)
 
-    def test_fbumnLL(self):
+    def test_bumOptim(self):
         np.random.seed(seed=100)
         testpeaks = np.vstack((np.random.uniform(0,1,10),np.random.uniform(0,0.2,10))).flatten()
         x = BUM.bumOptim(testpeaks,starts=1,seed=100)
