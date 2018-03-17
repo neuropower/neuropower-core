@@ -1,7 +1,8 @@
 import scipy.stats as stats
 import numpy as np
 
-def peakdens3D(x,k):
+
+def peakdens3D(x, k):
     # returns the PDF of a peak
     fd1 = 144*stats.norm.pdf(x)/(29*6**(0.5)-36)
     fd211 = k**2.*((1.-k**2.)**3. + 6.*(1.-k**2.)**2. + 12.*(1.-k**2.)+24.)*x**2. / (4.*(3.-k**2.)**2.)
@@ -20,16 +21,16 @@ def peakdens3D(x,k):
     fd43 = np.exp(-3.*k**2.*x**2/(2.*(5-3.*k**2.)))
     fd4 = fd41*fd42 * fd43
     fd51 = np.pi**0.5*k**3./4.*x*(x**2.-3.)
-    f521low = np.array([-10.,-10.])
-    f521up = np.array([0.,k*x/2.**(0.5)])
-    f521mu = np.array([0.,0.])
-    f521sigma = np.array([[3./2., -1.],[-1.,(3.-k**2.)/2.]])
-    fd521,i = stats.mvn.mvnun(f521low,f521up,f521mu,f521sigma)
-    f522low = np.array([-10.,-10.])
-    f522up = np.array([0.,k*x/2.**(0.5)])
-    f522mu = np.array([0.,0.])
-    f522sigma = np.array([[3./2., -1./2.],[-1./2.,(2.-k**2.)/2.]])
-    fd522,i = stats.mvn.mvnun(f522low,f522up,f522mu,f522sigma)
+    f521low = np.array([-10., -10.])
+    f521up = np.array([0., k*x/2.**(0.5)])
+    f521mu = np.array([0., 0.])
+    f521sigma = np.array([[3./2., -1.], [-1., (3.-k**2.)/2.]])
+    fd521, _ = stats.mvn.mvnun(f521low, f521up, f521mu, f521sigma)
+    f522low = np.array([-10., -10.])
+    f522up = np.array([0., k*x/2.**(0.5)])
+    f522mu = np.array([0., 0.])
+    f522sigma = np.array([[3./2., -1./2.], [-1./2., (2.-k**2.)/2.]])
+    fd522, _ = stats.mvn.mvnun(f522low, f522up, f522mu, f522sigma)
     fd5 = fd51*(fd521+fd522)
     out = fd1*(fd2+fd3+fd4+fd5)
     return out

@@ -1,1 +1,1 @@
-__all__ = ['BUM','cluster','neuropowermodels','peakdistribution']
+__all__ = ['BUM', 'cluster', 'neuropowermodels', 'peakdistribution']
