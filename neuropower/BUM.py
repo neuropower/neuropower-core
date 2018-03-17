@@ -15,31 +15,43 @@ def _fpLL(pars, p_values):
 
     Parameters
     ----------
-    pars : :obj:`list`
+    pars : :obj:`list` of :obj:`float`
+        Parameters ``a`` and ``lambda`` for beta-uniform mixture model.
+    p_values : :obj:`numpy.ndarray`
+        List of p-values.
 
-    p_values : :obj:`float`
+    Returns
+    -------
+    :obj:`numpy.ndarray`
+        Two-value array of gradient function parameters.
     """
-    a, l = pars
-    dl = -sum((1 - a * p_values ** (a - 1)) / (a * (1 - l) * p_values ** (a - 1) + l))
-    da = -sum((a * (1 - l) * p_values ** (a - 1) * np.log(p_values) + (1 - l) * p_values ** (a - 1)) \
-              / (a * (1 - l) * p_values ** (a - 1) + l))
+    a, lambda_ = pars
+    dl = -sum((1 - a * p_values ** (a - 1)) / (a * (1 - lambda_) * p_values ** (a - 1) + lambda_))
+    da = -sum((a * (1 - lambda_) * p_values ** (a - 1) * np.log(p_values) + (1 - lambda_) *\
+              p_values ** (a - 1)) / (a * (1 - lambda_) * p_values ** (a - 1) + lambda_))
     return np.asarray([dl, da])
 
 
 def _fbumnLL(pars, p_values):
     """
-    Returns the negative sum of the loglikelihood
+    Returns the negative sum of the loglikelihood.
 
     Parameters
     ----------
-    pars : :obj:`list`
-    p_values :
+    pars : :obj:`list` of :obj:`float`
+        Parameters ``a`` and ``lambda`` for beta-uniform mixture model.
+    p_values : :obj:`numpy.ndarray`
+        List of p-values.
+
+    Returns
+    -------
+    LL : :obj:`float`
+        Negative sum of loglikelihood.
     """
-    a = pars[0]
-    l = pars[1]
-    L = l + (1 - l) * a * p_values ** (a - 1)
-    negsumlog = -sum(np.log(L))
-    return negsumlog
+    a, lambda_ = pars
+    L = lambda_ + (1 - lambda_) * a * p_values ** (a - 1)
+    LL = -sum(np.log(L))
+    return LL
 
 
 def EstimatePi1(p_values, n_iters=10, seed=None):
@@ -66,13 +78,13 @@ def EstimatePi1(p_values, n_iters=10, seed=None):
     if seed is None:
         seed = np.random.uniform(0, 1000, 1)
     a = np.random.uniform(0.05, 0.95, (n_iters,))
-    l = np.random.uniform(0.05, 0.95, (n_iters,))
+    lambda_ = np.random.uniform(0.05, 0.95, (n_iters,))
     best = []
     par = []
     p_values = np.asarray(p_values)
     p_values[p_values < 10**(-6)] = 10**(-6)  # optimiser is stuck when p-values == 0
     for i in range(n_iters):
-        pars = np.array((a[i], l[i]))
+        pars = np.array((a[i], lambda_[i]))
         opt = minimize(_fbumnLL, pars, method='L-BFGS-B', args=(p_values,),
                        jac=_fpLL, bounds=((0.00001, 1), (0.00001, 1)))
         best.append(opt.fun)

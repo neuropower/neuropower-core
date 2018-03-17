@@ -9,21 +9,28 @@ Extract local maxima from a spm, return a csv file with variables:
 
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 
 
-def PeakTable(spm, thresh, mask):
+def PeakTable(spm, exc, mask):
     """
-    Make a new array with an extra row/column/plane around the original array
+    Identify local maxima above z-value threshold in masked statistical
+    image in array form.
 
     Parameters
     ----------
     spm : :obj:`numpy.ndarray`
         Z-statistic map in array form.
-    thresh : :obj:`float`
-        Voxel-wise z-value threshold to apply to ``spm``.
+    exc : :obj:`float`
+        Voxel-wise z-value threshold (i.e., excursion threshold or cluster-
+        defining threshold) to apply to ``spm``.
     mask : :obj:`numpy.ndarray`
         Boolean mask in array form.
+
+    Returns
+    -------
+    peak_df : :obj:`pandas.DataFrame`
+        DataFrame with local maxima (peaks) from statistical map. Each peak is
+        provided with i, j, and k indices, z-value, and peak-level p-value.
     """
     r = 1  # radius of cube in voxels
     spm_ext = np.pad(spm, r, 'constant')
@@ -31,14 +38,15 @@ def PeakTable(spm, thresh, mask):
     spm_ext = spm_ext * msk_ext
     shape = spm.shape
 
-    # open peak csv
+    # create empty dataframe
     labels = ['i', 'j', 'k', 'zval']
     peak_df = pd.DataFrame(columns=labels)
+
     # check for each voxel whether it's a peak. if it is, add to table
     for m in range(r, shape[0]+r):
         for n in range(r, shape[1]+r):
             for o in range(r, shape[2]+r):
-                if spm_ext[m, n, o] > thresh:
+                if spm_ext[m, n, o] > exc:
                     surroundings = spm_ext[m-r:m+r+1, n-r:n+r+1, o-r:o+r+1].copy()
                     surroundings[r, r, r] = 0
                     if spm_ext[m, n, o] > np.max(surroundings):
@@ -46,12 +54,8 @@ def PeakTable(spm, thresh, mask):
                                            columns=labels)
                         peak_df = peak_df.append(res)
 
-    # Unadjusted p-values (not used)
-    p_values = norm.sf(abs(peak_df['zval']))
-
-    # Adjusted p-values (used)
-    p_values = np.exp(-float(thresh)*(np.array(peak_df['zval'])-float(thresh)))
-
+    # Peak-level p-values (not the same as simple z-to-p conversion)
+    p_values = np.exp(-float(exc) * (np.array(peak_df['zval']) - float(exc)))
     p_values[p_values < 10**-6] = 10**-6
     peak_df['pval'] = p_values
     peak_df = peak_df.sort_values(by=['zval'], ascending=False)

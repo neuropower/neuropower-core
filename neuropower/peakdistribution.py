@@ -3,7 +3,18 @@ import numpy as np
 
 
 def peakdens3D(x, k):
-    # returns the PDF of a peak
+    """
+    Returns the PDF of a peak.
+
+    Parameters
+    ----------
+    x
+    k
+
+    Returns
+    -------
+    out
+    """
     fd1 = 144*stats.norm.pdf(x)/(29*6**(0.5)-36)
     fd211 = k**2.*((1.-k**2.)**3. + 6.*(1.-k**2.)**2. + 12.*(1.-k**2.)+24.)*x**2. / (4.*(3.-k**2.)**2.)
     fd212 = (2.*(1.-k**2.)**3. + 3.*(1.-k**2.)**2.+6.*(1.-k**2.)) / (4.*(3.-k**2.))
