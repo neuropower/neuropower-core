@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 import pandas as pd
+import nibabel as nib
 from scipy import integrate
 from scipy.stats import norm, beta
 from scipy.stats import t as tdist
@@ -241,6 +242,7 @@ def run_power_analysis(input_img, mask_img=None, dtype='t', n=0, design='one-sam
                        cdt=0.001, alpha=0.05, correction='RFT', n_iters=1000,
                        seed=None, fwhm=[8, 8, 8]):
     spm = input_img.get_data()
+    affine = input_img.affine
     voxel_size = input_img.header.get_zooms()
     if mask_img is not None:
         mask = mask_img.get_data()
@@ -248,29 +250,32 @@ def run_power_analysis(input_img, mask_img=None, dtype='t', n=0, design='one-sam
         mask = (spm != 0).astype(int)
     n_voxels = np.sum(mask)
 
-    z_u = norm.ppf(1 - cdt)
+    if design == 'one-sample':
+        df = n - 1
+    elif design == 'two-sample':
+        df = n - 2
+    else:
+        raise Exception('Unrecognized design: {0}'.format(design))
+
+    z_u = norm.ppf(1 - cdt)  # threshold in z
     if dtype == 'z':
         spm_z = spm.copy()
     elif dtype == 't':
-        spm_z = -norm.ppf(tdist.cdf(-spm, df=float(n-1)))
-        spm_p = tdist.sf(spm, n-1)
-        spm_z = -norm.ppf(spm_p)
+        spm_z = -norm.ppf(tdist.cdf(-spm, df=df))
     peak_df = cluster.PeakTable(spm_z, z_u, mask)
-    z_values = peak_df['peak'].values
-    p_values = norm.sf(abs(z_values))
-    p_values[p_values<10**-6] = 10**-6
-    peak_df['pval'] = p_values
-    p_values2 = np.exp(-float(z_u)*(np.array(z_values)-float(z_u)))
-    p_values2 = np.array([max(10**(-6), p) for p in p_values2])
-    p_values = p_values2[:]
-    #peak_df['pval2'] = p_values2
+    ijk = peak_df[['i', 'j', 'k']].values
+    xyz = pd.DataFrame(data=nib.affines.apply_affine(affine, ijk),
+                       columns=['x', 'y', 'z'])
+    peak_df = pd.concat([xyz, peak_df], axis=1)
+    peak_df = peak_df.drop(['i', 'j', 'k'], axis=1)
+    peak_df.index.name = 'peak index'
+    z_values = peak_df['zval'].values
+    p_values = peak_df['pval'].values
 
     out1 = BUM.EstimatePi1(p_values, n_iters=n_iters)
     out2 = modelfit(z_values, pi1=out1['pi1'], thresh=z_u,
                     n_iters=n_iters, seed=seed, method=correction)
     params = {}
-    params['p_values'] = p_values
-    params['z_values'] = z_values
     params['z_u'] = z_u
     params['a'] = out1['a']
     params['pi1'] = out1['pi1']
@@ -295,42 +300,45 @@ def run_power_analysis(input_img, mask_img=None, dtype='t', n=0, design='one-sam
     power_df = pd.DataFrame(powerpred_all)
     power_df = power_df.set_index('sample size', drop=True)
     power_df = power_df.loc[(power_df[power_df.columns]<1).all(axis=1)]
-    return params, power_df
+    return params, peak_df, power_df
 
 
-def plot_stuff(d):
-    p_values = d['p_values']
-    z_values = d['z_values']
-    z_u = d['z_u']
-    a = d['a']
-    pi1 = d['pi1']
-    mu = d['mu']
-    sigma = d['sigma']
-    mu_s = d['mu_s']
+def generate_figure(peak_df, params):
+    p_values = peak_df['pval'].values
+    z_values = peak_df['zval'].values
+    z_u = params['z_u']
+    a = params['a']
+    pi1 = params['pi1']
+    mu = params['mu']
+    sigma = params['sigma']
+    mu_s = params['mu_s']
     fig, axes = plt.subplots(ncols=2, figsize=(16, 7))
 
     # p-values
-    axes[0].hist(p_values, bins=np.arange(0,1.1,0.1), normed=True,
-                 alpha=0.6, label='observed distribution')
-    axes[0].axhline(1-pi1, color='g', lw=5, alpha=0.6, label='null distribution')
-
     x_min, x_max = np.floor(np.min(p_values)), np.ceil(np.max(p_values))
     x = np.linspace(x_min, x_max, 100)
     y_a = (pi1 * beta.pdf(x, a=a, b=1)) + 1 - pi1
+
+    axes[0].hist(p_values, bins=np.arange(0,1.1,0.1), normed=True,
+                 alpha=0.6, label='observed distribution')
+    axes[0].axhline(1-pi1, color='g', lw=5, alpha=0.6, label='null distribution')
     axes[0].plot(x, y_a, 'r-', lw=5, alpha=0.6, label='alternative distribution')
 
+    axes[0].set_ylabel('Density', fontsize=16)
     axes[0].set_xlabel('Peak p-values', fontsize=16)
     axes[0].set_title('Distribution of {0} peak p-values'
                       '\n$\pi_1$={1:0.03f}'.format(len(p_values), pi1),
                       fontsize=20)
+
     legend = axes[0].legend(frameon=True, fontsize=14)
     frame = legend.get_frame()
     frame.set_facecolor('white')
     frame.set_edgecolor('black')
+
     axes[0].set_xlim((0, 1))
 
     # Z-values
-    y, _, _ = axes[1].hist(z_values, bins=np.arange(min(z_values),30,0.3),
+    y, _, _ = axes[1].hist(z_values, bins=np.arange(min(z_values), 30, 0.3),
                            normed=True, alpha=0.6, label='observed distribution')
     x_min, x_max = np.floor(np.min(z_values)), np.ceil(np.max(z_values))
     y_max = np.ceil(y.max())
@@ -349,10 +357,12 @@ def plot_stuff(d):
                       fontsize=20)
     axes[1].set_xlabel('Peak heights (z-values)', fontsize=16)
     axes[1].set_ylabel('Density', fontsize=16)
+
     legend = axes[1].legend(frameon=True, fontsize=14)
     frame = legend.get_frame()
     frame.set_facecolor('white')
     frame.set_edgecolor('black')
+
     axes[1].set_xlim((min(z_values), x_max))
     axes[1].set_ylim((0, y_max))
 

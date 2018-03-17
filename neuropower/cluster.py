@@ -1,13 +1,15 @@
 """
 Extract local maxima from a spm, return a csv file with variables:
-- x coordinate
-- y coordinate
-- z coordinate
-- peak height
+- x-axis array index (i)
+- y-axis array index (j)
+- z-axis array index (k)
+- peak z-value
+- peak p-value
 """
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 
 def PeakTable(spm, thresh, mask):
@@ -17,31 +19,41 @@ def PeakTable(spm, thresh, mask):
     Parameters
     ----------
     spm : :obj:`numpy.ndarray`
-        Statistic map in array form.
+        Z-statistic map in array form.
     thresh : :obj:`float`
-        Voxel-wise threshold to apply to spm.
+        Voxel-wise z-value threshold to apply to ``spm``.
     mask : :obj:`numpy.ndarray`
-        Boolean brain mask in array form.
+        Boolean mask in array form.
     """
-    buff = 1
-    spm_ext = np.pad(spm, buff, 'constant')
-    msk_ext = np.pad(mask, buff, 'constant')
+    r = 1  # radius of cube in voxels
+    spm_ext = np.pad(spm, r, 'constant')
+    msk_ext = np.pad(mask, r, 'constant')
     spm_ext = spm_ext * msk_ext
     shape = spm.shape
 
     # open peak csv
-    labels = ['x', 'y', 'z', 'peak']
-    peaks = pd.DataFrame(columns=labels)
-    # check for each voxel whether it's a peak, if it is, add to table
-    for m in range(buff, shape[0]+buff):
-        for n in range(buff, shape[1]+buff):
-            for o in range(buff, shape[2]+buff):
+    labels = ['i', 'j', 'k', 'zval']
+    peak_df = pd.DataFrame(columns=labels)
+    # check for each voxel whether it's a peak. if it is, add to table
+    for m in range(r, shape[0]+r):
+        for n in range(r, shape[1]+r):
+            for o in range(r, shape[2]+r):
                 if spm_ext[m, n, o] > thresh:
-                    surroundings = spm_ext[m-buff:m+buff+1, n-buff:n+buff+1, o-buff:o+buff+1].copy()
-                    surroundings[buff, buff, buff] = 0
+                    surroundings = spm_ext[m-r:m+r+1, n-r:n+r+1, o-r:o+r+1].copy()
+                    surroundings[r, r, r] = 0
                     if spm_ext[m, n, o] > np.max(surroundings):
-                        res = pd.DataFrame(data=[[m-buff, n-buff, o-buff, spm_ext[m, n, o]]],
+                        res = pd.DataFrame(data=[[m-r, n-r, o-r, spm_ext[m, n, o]]],
                                            columns=labels)
-                        peaks = peaks.append(res)
-    peaks.index = range(len(peaks))
-    return peaks
+                        peak_df = peak_df.append(res)
+
+    # Unadjusted p-values (not used)
+    p_values = norm.sf(abs(peak_df['zval']))
+
+    # Adjusted p-values (used)
+    p_values = np.exp(-float(thresh)*(np.array(peak_df['zval'])-float(thresh)))
+
+    p_values[p_values < 10**-6] = 10**-6
+    peak_df['pval'] = p_values
+    peak_df = peak_df.sort_values(by=['zval'], ascending=False)
+    peak_df.index = range(len(peak_df))
+    return peak_df
