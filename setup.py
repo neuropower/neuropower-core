@@ -33,10 +33,10 @@ setup(
     ],
     test_suite='nose.collector',
     install_requires=[
-        'numpy==1.11.0',
-        'scipy==0.17.0',
-        'nibabel==2.0.2',
-        'pandas==0.18.1',
-        'nose==1.3.7'
+        'numpy>=1.11.0',
+        'scipy>=0.17.0',
+        'nibabel>=2.0.2',
+        'pandas>=0.18.1',
+        'nose>=1.3.7'
         ]
     )
