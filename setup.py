@@ -13,15 +13,15 @@ setup(
 
     # Author details
     author='Joke Durnez',
-    author_email = 'joke.durnez@gmail.com',
-    maintainer = 'Joke Durnez',
-    maintainer_email = 'joke.durnez@gmail.com',
+    author_email='joke.durnez@gmail.com',
+    maintainer='Joke Durnez',
+    maintainer_email='joke.durnez@gmail.com',
 
     # Packages
     packages=find_packages(),
 
     #Details
-    url = 'https://github.com/neuropower/neuropower-core',
+    url='https://github.com/neuropower/neuropower-core',
     description='A package to perform power analyses for neuroimaging data',
     long_description=readme(),
     license='MIT',

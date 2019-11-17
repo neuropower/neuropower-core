@@ -1,61 +1,62 @@
+"""
+Extract local maxima from a spm, return a csv file with variables:
+- x-axis array index (i)
+- y-axis array index (j)
+- z-axis array index (k)
+- peak z-value
+- peak p-value
+"""
+
 import numpy as np
 import pandas as pd
 
-""" Extract local maxima from a spm, return a csv file with variables:
-- x coordinate
-- y coordinate
-- z coordinate
-- peak height """
+def PeakTable(spm, exc, mask):
+    """
+    Identify local maxima above z-value threshold in masked statistical
+    image in array form.
 
-def PeakTable(spm,exc,mask):
-	# make a new array with an extra row/column/plane around the original array
-	spm_newdim = tuple(map(lambda x: x+2,spm.shape))
-	spm_ext = np.zeros((spm_newdim))
-	msk_ext = np.zeros((spm_newdim))
-	spm_ext.fill(-100)
-	spm_ext[1:(spm.shape[0]+1),1:(spm.shape[1]+1),1:(spm.shape[2]+1)] = spm
-	msk_ext[1:(spm.shape[0]+1),1:(spm.shape[1]+1),1:(spm.shape[2]+1)] = mask
-	spm_ext = spm_ext * msk_ext
-	shape = spm.shape
-	spm = None
-	# open peak csv
-	labels = ['x','y','z','peak']
-	peaks = pd.DataFrame(columns=labels)
-	# check for each voxel whether it's a peak, if it is, add to table
-	for m in range(1,shape[0]+1):
-		for n in range(1,shape[1]+1):
-			for o in range(1,shape[2]+1):
-				surroundings = None
-				res = None
-				if spm_ext[m,n,o]>exc:
-					surroundings=[spm_ext[m-1,n-1,o-1],
-					spm_ext[m-1,n-1,o],
-					spm_ext[m-1,n-1,o+1],
-					spm_ext[m-1,n,o-1],
-					spm_ext[m-1,n,o],
-					spm_ext[m-1,n,o+1],
-					spm_ext[m-1,n+1,o-1],
-					spm_ext[m-1,n+1,o],
-					spm_ext[m-1,n+1,o+1],
-					spm_ext[m,n-1,o-1],
-					spm_ext[m,n-1,o],
-					spm_ext[m,n-1,o+1],
-					spm_ext[m,n,o-1],
-					spm_ext[m,n,o+1],
-					spm_ext[m,n+1,o-1],
-					spm_ext[m,n+1,o],
-					spm_ext[m,n+1,o+1],
-					spm_ext[m+1,n-1,o-1],
-					spm_ext[m+1,n-1,o],
-					spm_ext[m+1,n-1,o+1],
-					spm_ext[m+1,n,o-1],
-					spm_ext[m+1,n,o],
-					spm_ext[m+1,n,o+1],
-					spm_ext[m+1,n+1,o-1],
-					spm_ext[m+1,n+1,o],
-					spm_ext[m+1,n+1,o+1]]
-					if spm_ext[m,n,o] > np.max(surroundings):
-						res =pd.DataFrame(data=[[m-1,n-1,o-1,spm_ext[m,n,o]]],columns=labels)
-						peaks=peaks.append(res)
-	peaks = peaks.reset_index()
-	return peaks
+    Parameters
+    ----------
+    spm : :obj:`numpy.ndarray`
+        Z-statistic map in array form.
+    exc : :obj:`float`
+        Voxel-wise z-value threshold (i.e., excursion threshold or cluster-
+        defining threshold) to apply to ``spm``.
+    mask : :obj:`numpy.ndarray`
+        Boolean mask in array form.
+
+    Returns
+    -------
+    peak_df : :obj:`pandas.DataFrame`
+        DataFrame with local maxima (peaks) from statistical map. Each peak is
+        provided with i, j, and k indices, z-value, and peak-level p-value.
+    """
+    r = 1  # radius of cube in voxels
+    spm_ext = np.pad(spm, r, 'constant')
+    msk_ext = np.pad(mask, r, 'constant')
+    spm_ext = spm_ext * msk_ext
+    shape = spm.shape
+
+    # create empty dataframe
+    labels = ['i', 'j', 'k', 'zval']
+    peak_df = pd.DataFrame(columns=labels)
+
+    # check for each voxel whether it's a peak. if it is, add to table
+    for m in range(r, shape[0]+r):
+        for n in range(r, shape[1]+r):
+            for o in range(r, shape[2]+r):
+                if spm_ext[m, n, o] > exc:
+                    surroundings = spm_ext[m-r:m+r+1, n-r:n+r+1, o-r:o+r+1].copy()
+                    surroundings[r, r, r] = 0
+                    if spm_ext[m, n, o] > np.max(surroundings):
+                        res = pd.DataFrame(data=[[m-r, n-r, o-r, spm_ext[m, n, o]]],
+                                           columns=labels)
+                        peak_df = peak_df.append(res)
+
+    # Peak-level p-values (not the same as simple z-to-p conversion)
+    p_values = np.exp(-float(exc) * (np.array(peak_df['zval']) - float(exc)))
+    p_values[p_values < 10**-6] = 10**-6
+    peak_df['pval'] = p_values
+    peak_df = peak_df.sort_values(by=['zval'], ascending=False)
+    peak_df.index = range(len(peak_df))
+    return peak_df
