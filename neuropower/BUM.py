@@ -26,9 +26,17 @@ def _fpLL(pars, p_values):
         Two-value array of gradient function parameters.
     """
     a, lambda_ = pars
-    dl = -sum((1 - a * p_values ** (a - 1)) / (a * (1 - lambda_) * p_values ** (a - 1) + lambda_))
-    da = -sum((a * (1 - lambda_) * p_values ** (a - 1) * np.log(p_values) + (1 - lambda_) *\
-              p_values ** (a - 1)) / (a * (1 - lambda_) * p_values ** (a - 1) + lambda_))
+    dl = -sum(
+        (1 - a * p_values ** (a - 1))
+        / (a * (1 - lambda_) * p_values ** (a - 1) + lambda_)
+    )
+    da = -sum(
+        (
+            a * (1 - lambda_) * p_values ** (a - 1) * np.log(p_values)
+            + (1 - lambda_) * p_values ** (a - 1)
+        )
+        / (a * (1 - lambda_) * p_values ** (a - 1) + lambda_)
+    )
     return np.asarray([dl, da])
 
 
@@ -82,18 +90,21 @@ def EstimatePi1(p_values, n_iters=10, seed=None):
     best = []
     par = []
     p_values = np.asarray(p_values)
-    p_values[p_values < 10**(-6)] = 10**(-6)  # optimiser is stuck when p-values == 0
+    p_values[p_values < 10 ** (-6)] = 10 ** (-6)  # optimiser is stuck when p-values == 0
     for i in range(n_iters):
         pars = np.array((a[i], lambda_[i]))
-        opt = minimize(_fbumnLL, pars, method='L-BFGS-B', args=(p_values,),
-                       jac=_fpLL, bounds=((0.00001, 1), (0.00001, 1)))
+        opt = minimize(
+            _fbumnLL,
+            pars,
+            method="L-BFGS-B",
+            args=(p_values,),
+            jac=_fpLL,
+            bounds=((0.00001, 1), (0.00001, 1)),
+        )
         best.append(opt.fun)
         par.append(opt.x)
     minind = best.index(np.nanmin(best))
     a, lambda_ = par[minind]
     pi1 = 1 - (lambda_ + (1 - lambda_) * a)
-    out = {'maxloglikelihood': best[minind],
-           'pi1': pi1,
-           'a': a,
-           'lambda': lambda_}
+    out = {"maxloglikelihood": best[minind], "pi1": pi1, "a": a, "lambda": lambda_}
     return out

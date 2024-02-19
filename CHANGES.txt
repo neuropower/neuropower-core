@@ -9,7 +9,7 @@
   * add configuration file
 
 0.2.2 - 2016-05-11
-  * add possibility to addd mask to clusterfunction
+  * add possibility to add mask to clusterfunction
 
 0.2.1 - 2016-05-10
   * remove bug voxelsize for function neuropowermodels.threshold
