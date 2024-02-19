@@ -22,32 +22,34 @@ classifiers = [
     "Programming Language :: Python :: 3.12"
 ]
 dependencies = [
-        "numpy>=1.11.0",
-        "scipy>=0.17.0",
-        "nibabel>=2.0.2",
-        "pandas>=0.18.1",
-        "nose>=1.3.7",
-        "matplotlib",
+    "numpy>=1.11.0",
+    "scipy>=0.17.0",
+    "nibabel>=2.0.2",
+    "pandas>=0.18.1",
+    "nose>=1.3.7",
+    "matplotlib"
 ]
 description = "A package to perform power analyses for neuroimaging data"
 # Version from setuptools_scm
 dynamic = ["version"]
+keywords = [
+    "statistics",
+    "power",
+    "fmri",
+    "neuroimaging",
+    "inference",
+    "samplesize"
+]
 license = {text = "MIT"}
 maintainers = [{name = "Joke Durnez", email = "joke.durnez@gmail.com"}]
 name = "neuropower"
 readme = "README.md"
 requires-python = ">=3.8"
-keywords=["statistics",
-    "power", "fmri", "neuroimaging", "inference", "samplesize"]
-    # # Version number:
-    # version="0.2.5"
-    # # Details
-    # url="https://github.com/neuropower/neuropower-core"
 
 [project.optional-dependencies]
 # A combination of dependencies useful for developers
 dev = [
-    "neurodesign[est]",
+    "neuropower[test]",
     'pre-commit',
     'tox'
 ]

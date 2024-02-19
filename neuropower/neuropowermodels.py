@@ -585,7 +585,7 @@ def generate_figure(peak_df, params, method="RFT"):
     axes[1].plot(x, y_m, "b-", lw=5, alpha=0.6, label="total distribution")
 
     axes[1].set_title(
-        "Distribution of peak heights\n$\\delta_1$ " "= {:0.03f}".format(mu_s),
+        f"Distribution of peak heights\n$\\delta_1$ = {mu_s:0.03f}",
         fontsize=20,
     )
     axes[1].set_xlabel("Peak heights (z-values)", fontsize=16)

@@ -85,7 +85,7 @@ def test_Modelfit_RFT():
     assert np.around(x["mu"], decimals=2) == 6.10
 
 
-def test_MixPDF_SLL_CS():
+def test_MixPDF_SLL_CS_2():
     np.random.seed(seed=100)
     testpeaks = np.random.uniform(-5, 5, 30)
     x = neuropowermodels.modelfit(peaks=testpeaks, pi1=0.5, seed=20, method="CS")
