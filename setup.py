@@ -37,6 +37,7 @@ setup(
         'scipy>=0.17.0',
         'nibabel>=2.0.2',
         'pandas>=0.18.1',
-        'nose>=1.3.7'
+        'nose>=1.3.7',
+        'matplotlib'
         ]
     )

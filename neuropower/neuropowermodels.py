@@ -410,7 +410,7 @@ def run_power_analysis(input_img, n, fwhm=[8, 8, 8], mask_img=None, dtype='t',
     elif design == 'two-sample':
         df = n - 2
     else:
-        raise Exception('Unrecognized design: {0}'.format(design))
+        raise Exception(f'Unrecognized design: {design}')
 
     z_u = norm.ppf(1 - exc)  # threshold in z
     if dtype == 'z':
@@ -418,7 +418,7 @@ def run_power_analysis(input_img, n, fwhm=[8, 8, 8], mask_img=None, dtype='t',
     elif dtype == 't':
         spm_z = -norm.ppf(tdist.cdf(-spm, df=df))
     else:
-        raise Exception('Unrecognized data type: {0}'.format(dtype))
+        raise Exception(f'Unrecognized data type: {dtype}')
 
     peak_df = cluster.PeakTable(spm_z, z_u, mask)
     ijk = peak_df[['i', 'j', 'k']].values
@@ -505,8 +505,8 @@ def generate_figure(peak_df, params, method='RFT'):
 
     axes[0].set_ylabel('Density', fontsize=16)
     axes[0].set_xlabel('Peak p-values', fontsize=16)
-    axes[0].set_title('Distribution of {0} peak p-values'
-                      '\n$\pi_1$={1:0.03f}'.format(len(p_values), pi1),
+    axes[0].set_title('Distribution of {} peak p-values'
+                      '\n$\\pi_1$={:0.03f}'.format(len(p_values), pi1),
                       fontsize=20)
 
     legend = axes[0].legend(frameon=True, fontsize=14)
@@ -531,8 +531,8 @@ def generate_figure(peak_df, params, method='RFT'):
     axes[1].plot(x, y_0, 'g-', lw=5, alpha=0.6, label='null distribution')
     axes[1].plot(x, y_m, 'b-', lw=5, alpha=0.6, label='total distribution')
 
-    axes[1].set_title('Distribution of peak heights\n$\delta_1$ '
-                      '= {0:0.03f}'.format(mu_s),
+    axes[1].set_title('Distribution of peak heights\n$\\delta_1$ '
+                      '= {:0.03f}'.format(mu_s),
                       fontsize=20)
     axes[1].set_xlabel('Peak heights (z-values)', fontsize=16)
     axes[1].set_ylabel('Density', fontsize=16)
