@@ -9,8 +9,8 @@ Return a csv file with variables:
 - peak p-value
 """
 
-
 import itertools
+
 import numpy as np
 import pandas as pd
 
@@ -46,7 +46,9 @@ def PeakTable(spm, exc, mask):
     peak_df = pd.DataFrame(columns=labels)
 
     # check for each voxel whether it's a peak. if it is, add to table
-    for m, n, o in itertools.product(range(r, shape[0] + r), range(r, shape[1] + r), range(r, shape[2] + r)):
+    for m, n, o in itertools.product(
+        range(r, shape[0] + r), range(r, shape[1] + r), range(r, shape[2] + r)
+    ):
         if spm_ext[m, n, o] > exc:
             surroundings = spm_ext[
                 m - r : m + r + 1, n - r : n + r + 1, o - r : o + r + 1
