@@ -1,0 +1,90 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling", "hatch-vcs"]
+
+[project]
+authors = [{name = "Joke Durnez"}]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved",
+    "Programming Language :: Python",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+dependencies = [
+    "numpy>=1.11.0",
+    "scipy>=0.17.0",
+    "nibabel>=2.0.2",
+    "pandas>=0.18.1",
+    "nose>=1.3.7",
+    "matplotlib"
+]
+description = "A package to perform power analyses for neuroimaging data"
+# Version from setuptools_scm
+dynamic = ["version"]
+keywords = [
+    "statistics",
+    "power",
+    "fmri",
+    "neuroimaging",
+    "inference",
+    "samplesize"
+]
+license = {text = "MIT"}
+maintainers = [{name = "Joke Durnez", email = "joke.durnez@gmail.com"}]
+name = "neuropower"
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+# A combination of dependencies useful for developers
+dev = [
+    "neuropower[test]",
+    'pre-commit',
+    'tox'
+]
+# For running unit and docstring tests
+test = [
+    "coverage",
+    "pytest>=6.0.0",
+    "pytest-cov",
+    "nbmake"
+]
+
+[tool.black]
+line-length = 90
+
+[tool.codespell]
+ignore-words = ".github/codespell_ignore_words.txt"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "neuropower/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["neuropower"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.isort]
+combine_as_imports = true
+line_length = 90
+profile = "black"
+skip_gitignore = true
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers --doctest-modules --showlocals -s -vv --durations=0"
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
+junit_family = "xunit2"
+minversion = "6.0"
+xfail_strict = true
