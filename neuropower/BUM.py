@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-"""
-Fit a beta-uniform mixture model to a list of p-values.
+"""Fit a beta-uniform mixture model to a list of p-values.
+
 The BUM model is introduced in Pounds & Morris, 2003.
 """
 
@@ -10,8 +10,7 @@ from scipy.optimize import minimize
 
 
 def _fpLL(pars, p_values):
-    """
-    Returns the gradient function of the BUM model.
+    """Return the gradient function of the BUM model.
 
     Parameters
     ----------
@@ -41,8 +40,7 @@ def _fpLL(pars, p_values):
 
 
 def _fbumnLL(pars, p_values):
-    """
-    Returns the negative sum of the loglikelihood.
+    """Return the negative sum of the loglikelihood.
 
     Parameters
     ----------
@@ -63,9 +61,11 @@ def _fbumnLL(pars, p_values):
 
 
 def EstimatePi1(p_values, n_iters=10, seed=None):
-    """
-    Returns the MLE estimator for pi1, with the shaping parameters and the value
-    of the negative sum of the loglikelihood. Searches the maximum likelihood
+    """Return the MLE estimator for pi1.
+
+    Return it with the shaping parameters and the value
+    of the negative sum of the loglikelihood.
+    Searches the maximum likelihood
     estimator for the shape parameters of the BUM-model given a list of p-values.
 
     Parameters

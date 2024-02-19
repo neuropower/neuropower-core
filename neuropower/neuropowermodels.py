@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-"""
-Fit a mixture model to a list of peak height T-values.
-The model is introduced in the HBM poster:
+"""Fit a mixture model to a list of peak height T-values.
+
+The model is introduced in the HBM poster.
 http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/nichols/presentations/ohbm2015/Durnez-PeakPower-OHBM2015.pdf
 """
 import matplotlib.pyplot as plt
@@ -17,9 +17,9 @@ from neuropower import BUM, cluster, peakdistribution
 
 
 def altPDF(peaks, mu, sigma=None, exc=None, method="RFT"):
-    """
-    Returns probability density using a truncated normal distribution that we
-    define as the distribution of local maxima in a GRF under the alternative
+    """Return probability density using a truncated normal distribution.
+
+    We define as the distribution of local maxima in a GRF under the alternative
     hypothesis of activation.
 
     Parameters
@@ -56,8 +56,7 @@ def altPDF(peaks, mu, sigma=None, exc=None, method="RFT"):
 
 
 def nulPDF(peaks, exc=None, method="RFT"):
-    """
-    Returns probability density of the null peak distribution.
+    """Return probability density of the null peak distribution.
 
     Parameters
     ----------
@@ -84,8 +83,7 @@ def nulPDF(peaks, exc=None, method="RFT"):
 
 
 def altCDF(peaks, mu, sigma=None, exc=None, method="RFT"):
-    """
-    Returns the CDF of the alternative peak distribution
+    """Return the CDF of the alternative peak distribution.
 
     Parameters
     ----------
@@ -123,8 +121,7 @@ def altCDF(peaks, mu, sigma=None, exc=None, method="RFT"):
 
 
 def TruncTau(mu, sigma, exc):
-    """
-    Calculates truncated tau value?
+    """Calculate truncated tau value.
 
     Parameters
     ----------
@@ -147,8 +144,7 @@ def TruncTau(mu, sigma, exc):
 
 
 def _nulCDF(peaks, exc=None, method="RFT"):
-    """
-    Returns the CDF of the null peak distribution.
+    """Return the CDF of the null peak distribution.
 
     Parameters
     ----------
@@ -180,8 +176,7 @@ def _nulCDF(peaks, exc=None, method="RFT"):
 
 
 def mixPDF(peaks, pi1, mu, sigma=None, exc=None, method="RFT"):
-    """
-    Returns the PDF of the mixture of null and alternative distributions.
+    """Return the PDF of the mixture of null and alternative distributions.
 
     Parameters
     ----------
@@ -217,8 +212,7 @@ def mixPDF(peaks, pi1, mu, sigma=None, exc=None, method="RFT"):
 
 
 def _mixPDF_SLL(pars, peaks, pi1, exc=None, method="RFT"):
-    """
-    Returns the negative sum of the loglikelihood of the PDF with RFT.
+    """Return the negative sum of the loglikelihood of the PDF with RFT.
 
     Parameters
     ----------
@@ -254,9 +248,8 @@ def _mixPDF_SLL(pars, peaks, pi1, exc=None, method="RFT"):
 
 
 def modelfit(peaks, pi1, exc=None, n_iters=1, seed=None, method="RFT"):
-    """
-    Searches the maximum likelihood estimator for the mixture distribution of
-    null and alternative.
+    """Search the maximum likelihood estimator \
+       for the mixture distribution of null and alternative.
 
     Parameters
     ----------
@@ -393,7 +386,8 @@ def run_power_analysis(
     n_iters=1000,
     seed=None,
 ):
-    """
+    """Run power analysis.
+
     Parameters
     ----------
     input_img : :obj:`nibabel.Nifti1Image`

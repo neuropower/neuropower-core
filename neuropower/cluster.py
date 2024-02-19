@@ -1,5 +1,7 @@
-"""
-Extract local maxima from a spm, return a csv file with variables:
+"""Extract local maxima from a spm.
+
+Return a csv file with variables:
+
 - x-axis array index (i)
 - y-axis array index (j)
 - z-axis array index (k)
@@ -12,9 +14,8 @@ import pandas as pd
 
 
 def PeakTable(spm, exc, mask):
-    """
-    Identify local maxima above z-value threshold in masked statistical
-    image in array form.
+    """Identify local maxima above z-value threshold in masked statistical \
+       image in array form.
 
     Parameters
     ----------

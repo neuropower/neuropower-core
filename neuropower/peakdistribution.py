@@ -3,8 +3,7 @@ import scipy.stats as stats
 
 
 def peakdens3D(x, k):
-    """
-    Returns the PDF of a peak.
+    """Return the PDF of a peak.
 
     Parameters
     ----------
