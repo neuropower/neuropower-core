@@ -1,5 +1,3 @@
-import json
-import os
 from argparse import ArgumentParser
 
 import nibabel as nib
