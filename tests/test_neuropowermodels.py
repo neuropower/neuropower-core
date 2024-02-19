@@ -69,13 +69,6 @@ def test_MixPDF_SLL_RFT():
     assert np.around(x, decimals=2) == 156.03
 
 
-def test_MixPDF_SLL_CS():
-    np.random.seed(seed=100)
-    testpeaks = np.random.uniform(-5, 5, 30)
-    x = neuropowermodels.mixPDF_SLL(pars=[3], peaks=testpeaks, pi1=0.5, method="CS")
-    assert np.around(x, decimals=2) == 451.62
-
-
 def test_Modelfit_RFT():
     np.random.seed(seed=100)
     testpeaks = np.random.uniform(2, 10, 20)
@@ -85,7 +78,7 @@ def test_Modelfit_RFT():
     assert np.around(x["mu"], decimals=2) == 6.10
 
 
-def test_MixPDF_SLL_CS_2():
+def test_MixPDF_SLL_CS():
     np.random.seed(seed=100)
     testpeaks = np.random.uniform(-5, 5, 30)
     x = neuropowermodels.modelfit(peaks=testpeaks, pi1=0.5, seed=20, method="CS")

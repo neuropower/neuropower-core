@@ -9,6 +9,8 @@ Return a csv file with variables:
 - peak p-value
 """
 
+import itertools
+
 import numpy as np
 import pandas as pd
 
@@ -44,19 +46,19 @@ def PeakTable(spm, exc, mask):
     peak_df = pd.DataFrame(columns=labels)
 
     # check for each voxel whether it's a peak. if it is, add to table
-    for m in range(r, shape[0] + r):
-        for n in range(r, shape[1] + r):
-            for o in range(r, shape[2] + r):
-                if spm_ext[m, n, o] > exc:
-                    surroundings = spm_ext[
-                        m - r : m + r + 1, n - r : n + r + 1, o - r : o + r + 1
-                    ].copy()
-                    surroundings[r, r, r] = 0
-                    if spm_ext[m, n, o] > np.max(surroundings):
-                        res = pd.DataFrame(
-                            data=[[m - r, n - r, o - r, spm_ext[m, n, o]]], columns=labels
-                        )
-                        peak_df = peak_df.append(res)
+    for m, n, o in itertools.product(
+        range(r, shape[0] + r), range(r, shape[1] + r), range(r, shape[2] + r)
+    ):
+        if spm_ext[m, n, o] > exc:
+            surroundings = spm_ext[
+                m - r : m + r + 1, n - r : n + r + 1, o - r : o + r + 1
+            ].copy()
+            surroundings[r, r, r] = 0
+            if spm_ext[m, n, o] > np.max(surroundings):
+                res = pd.DataFrame(
+                    data=[[m - r, n - r, o - r, spm_ext[m, n, o]]], columns=labels
+                )
+                peak_df = peak_df.append(res)
 
     # Peak-level p-values (not the same as simple z-to-p conversion)
     p_values = np.exp(-float(exc) * (np.array(peak_df["zval"]) - float(exc)))
