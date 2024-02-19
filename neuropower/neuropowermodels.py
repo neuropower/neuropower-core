@@ -337,10 +337,7 @@ def threshold(pvalues, fwhm, voxsize, n_voxels, alpha=0.05, exc=None):
     pvals_order = pvals_sortind.argsort()
     FDRqval = pvals_order / float(len(pvalues)) * 0.05
     reject = pvalues < FDRqval
-    if reject.any():
-        FDRc = np.max(pvalues[reject])
-    else:
-        FDRc = 0
+    FDRc = np.max(pvalues[reject]) if reject.any() else 0
     cutoff_BH = "nan" if FDRc == 0 else min(peakrange[pN < FDRc])
     out = {"UN": cutoff_UN, "BF": cutoff_BF, "RFT": cutoff_RFT, "BH": cutoff_BH}
     return out
@@ -366,10 +363,7 @@ def BH(pvals, alpha):
     pvals_order = pvals_sortind.argsort()
     FDRqval = pvals_order / float(len(pvals)) * alpha
     reject = pvals < FDRqval
-    if np.sum(reject) == 0:
-        FDRc = 0
-    else:
-        FDRc = np.max(pvals[reject])
+    FDRc = 0 if np.sum(reject) == 0 else np.max(pvals[reject])
     return FDRc
 
 
@@ -427,10 +421,7 @@ def run_power_analysis(
     spm = input_img.get_data()
     affine = input_img.affine
     voxel_size = input_img.header.get_zooms()
-    if mask_img is not None:
-        mask = mask_img.get_data()
-    else:
-        mask = (spm != 0).astype(int)
+    mask = mask_img.get_data() if mask_img is not None else (spm != 0).astype(int)
     n_voxels = np.sum(mask)
 
     if design == "one-sample":
@@ -464,13 +455,14 @@ def run_power_analysis(
     out2 = modelfit(
         z_values, pi1=out1["pi1"], exc=z_u, n_iters=n_iters, seed=seed, method=method
     )
-    params = {}
-    params["z_u"] = z_u
-    params["a"] = out1["a"]
-    params["pi1"] = out1["pi1"]
-    params["lambda"] = out1["lambda"]
-    params["mu"] = out2["mu"]
-    params["sigma"] = out2["sigma"]
+    params = {
+        "z_u": z_u,
+        "a": out1["a"],
+        "pi1": out1["pi1"],
+        "lambda": out1["lambda"],
+        "mu": out2["mu"],
+        "sigma": out2["sigma"],
+    }
     params["mu_s"] = params["mu"] / np.sqrt(n)
 
     # Predict power for range of sample sizes
@@ -480,15 +472,18 @@ def run_power_analysis(
     for s in test_ns:
         projected_effect = params["mu_s"] * np.sqrt(s)
 
-        powerpred_s = {}
-        for k, v in thresholds.items():
-            if not v == "nan":
-                powerpred_s[k] = (
-                    1
-                    - altCDF(
-                        [v], projected_effect, params["sigma"], params["z_u"], method
-                    )[0]
-                )
+        powerpred_s = {
+            k: 1
+            - altCDF(
+                [v],
+                projected_effect,
+                params["sigma"],
+                params["z_u"],
+                method,
+            )[0]
+            for k, v in thresholds.items()
+            if v != "nan"
+        }
         powerpred_s["sample size"] = s
         powerpred_all.append(powerpred_s)
     power_df = pd.DataFrame(powerpred_all)
