@@ -13,6 +13,7 @@ from scipy import integrate
 from scipy.optimize import minimize
 from scipy.stats import beta, norm, t as tdist
 
+from nilearn.image import math_img
 from neuropower import BUM, cluster, peakdistribution
 
 
@@ -418,10 +419,10 @@ def run_power_analysis(
         DataFrame of power estimates using different multiple comparisons
         correction methods for different sample sizes.
     """
-    spm = input_img.get_data()
+    spm = input_img.get_fdata()
     affine = input_img.affine
     voxel_size = input_img.header.get_zooms()
-    mask = mask_img.get_data() if mask_img is not None else (spm != 0).astype(int)
+    mask = mask_img.get_fdata() if mask_img is not None else math_img('(img != 0)', img=input_img).get_fdata()
     n_voxels = np.sum(mask)
 
     if design == "one-sample":
@@ -531,7 +532,7 @@ def generate_figure(peak_df, params, method="RFT"):
     axes[0].hist(
         p_values,
         bins=np.arange(0, 1.1, 0.1),
-        normed=True,
+        density=True,
         alpha=0.6,
         label="observed distribution",
     )
@@ -557,7 +558,7 @@ def generate_figure(peak_df, params, method="RFT"):
     y, _, _ = axes[1].hist(
         z_values,
         bins=np.arange(min(z_values), 30, 0.3),
-        normed=True,
+        density=True,
         alpha=0.6,
         label="observed distribution",
     )
