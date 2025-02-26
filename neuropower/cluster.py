@@ -58,7 +58,7 @@ def PeakTable(spm, exc, mask):
                 res = pd.DataFrame(
                     data=[[m - r, n - r, o - r, spm_ext[m, n, o]]], columns=labels
                 )
-                peak_df = peak_df.append(res)
+                peak_df = pd.concat([peak_df, res], ignore_index=True)
 
     # Peak-level p-values (not the same as simple z-to-p conversion)
     p_values = np.exp(-float(exc) * (np.array(peak_df["zval"]) - float(exc)))
