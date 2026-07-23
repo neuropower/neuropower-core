@@ -5,6 +5,7 @@
 The model is introduced in the HBM poster.
 http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/nichols/presentations/ohbm2015/Durnez-PeakPower-OHBM2015.pdf
 """
+
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
