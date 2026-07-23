@@ -53,12 +53,16 @@ def peakdens3D(x, k):
     f521up = np.array([0.0, k * x / 2.0 ** (0.5)])
     f521mu = np.array([0.0, 0.0])
     f521sigma = np.array([[3.0 / 2.0, -1.0], [-1.0, (3.0 - k**2.0) / 2.0]])
-    fd521, _ = stats.mvn.mvnun(f521low, f521up, f521mu, f521sigma)
+    fd521 = stats.multivariate_normal.cdf(
+        f521up, mean=f521mu, cov=f521sigma, lower_limit=f521low
+    )
     f522low = np.array([-10.0, -10.0])
     f522up = np.array([0.0, k * x / 2.0 ** (0.5)])
     f522mu = np.array([0.0, 0.0])
     f522sigma = np.array([[3.0 / 2.0, -1.0 / 2.0], [-1.0 / 2.0, (2.0 - k**2.0) / 2.0]])
-    fd522, _ = stats.mvn.mvnun(f522low, f522up, f522mu, f522sigma)
+    fd522 = stats.multivariate_normal.cdf(
+        f522up, mean=f522mu, cov=f522sigma, lower_limit=f522low
+    )
     fd5 = fd51 * (fd521 + fd522)
     out = fd1 * (fd2 + fd3 + fd4 + fd5)
     return out

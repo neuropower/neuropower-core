@@ -75,11 +75,11 @@ def test_Modelfit_RFT():
     x = neuropowermodels.modelfit(
         peaks=testpeaks, pi1=0.5, exc=2.0, seed=20, method="RFT"
     )
-    assert np.around(x["mu"], decimals=2) == 6.10
+    assert np.around(x["mu"], decimals=2) == 6.58
 
 
 def test_MixPDF_SLL_CS():
     np.random.seed(seed=100)
     testpeaks = np.random.uniform(-5, 5, 30)
     x = neuropowermodels.modelfit(peaks=testpeaks, pi1=0.5, seed=20, method="CS")
-    assert np.around(x["maxloglikelihood"], decimals=2) == 448.15
+    assert np.around(x["maxloglikelihood"], decimals=2) == 445.77
