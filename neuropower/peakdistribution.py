@@ -1,5 +1,24 @@
+import inspect
+
 import numpy as np
 import scipy.stats as stats
+
+# SciPy >= 1.16 evaluates multivariate_normal.cdf with an unseeded randomized
+# quasi-Monte-Carlo integration, so repeated calls with identical inputs return
+# slightly different values. That noise is larger than the step size used by
+# scipy.optimize.minimize's finite-difference gradient in neuropowermodels.modelfit,
+# which makes the CS-method fit non-reproducible and prone to converging to a bad
+# optimum. Pinning a fresh, fixed-seed generator on each call restores determinism.
+_MVN_CDF_SUPPORTS_RNG = (
+    "rng" in inspect.signature(stats.multivariate_normal.cdf).parameters
+)
+
+
+def _mvn_cdf(x, mean, cov, lower_limit):
+    kwargs = {"rng": np.random.default_rng(0)} if _MVN_CDF_SUPPORTS_RNG else {}
+    return stats.multivariate_normal.cdf(
+        x, mean=mean, cov=cov, lower_limit=lower_limit, **kwargs
+    )
 
 
 def peakdens3D(x, k):
@@ -53,16 +72,12 @@ def peakdens3D(x, k):
     f521up = np.array([0.0, k * x / 2.0 ** (0.5)])
     f521mu = np.array([0.0, 0.0])
     f521sigma = np.array([[3.0 / 2.0, -1.0], [-1.0, (3.0 - k**2.0) / 2.0]])
-    fd521 = stats.multivariate_normal.cdf(
-        f521up, mean=f521mu, cov=f521sigma, lower_limit=f521low
-    )
+    fd521 = _mvn_cdf(f521up, mean=f521mu, cov=f521sigma, lower_limit=f521low)
     f522low = np.array([-10.0, -10.0])
     f522up = np.array([0.0, k * x / 2.0 ** (0.5)])
     f522mu = np.array([0.0, 0.0])
     f522sigma = np.array([[3.0 / 2.0, -1.0 / 2.0], [-1.0 / 2.0, (2.0 - k**2.0) / 2.0]])
-    fd522 = stats.multivariate_normal.cdf(
-        f522up, mean=f522mu, cov=f522sigma, lower_limit=f522low
-    )
+    fd522 = _mvn_cdf(f522up, mean=f522mu, cov=f522sigma, lower_limit=f522low)
     fd5 = fd51 * (fd521 + fd522)
     out = fd1 * (fd2 + fd3 + fd4 + fd5)
     return out
