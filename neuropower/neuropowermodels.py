@@ -5,6 +5,7 @@
 The model is introduced in the HBM poster.
 http://www2.warwick.ac.uk/fac/sci/statistics/staff/academic-research/nichols/presentations/ohbm2015/Durnez-PeakPower-OHBM2015.pdf
 """
+
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
@@ -243,7 +244,10 @@ def _mixPDF_SLL(pars, peaks, pi1, exc=None, method="RFT"):
         f = mixPDF(peaks, pi1=pi1, mu=mu, method="CS")
     else:
         raise ValueError('Argument `method` must be either "RFT" or "CS"')
-    LL = -sum(np.log(f))
+    # f is a probability density and must stay positive for log(); floating-point
+    # cancellation or genuinely near-zero tail densities can otherwise produce
+    # log(<=0) = -inf/nan, which breaks the optimizer's finite-difference gradient.
+    LL = -sum(np.log(np.clip(f, a_min=np.finfo(float).tiny, a_max=None)))
     return LL
 
 
